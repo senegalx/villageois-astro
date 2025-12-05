@@ -2,10 +2,8 @@ import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { wpCollections } from 'dewp/loaders';
 
-
-// https://www.lesvillageois.org/wp-json/wp/
 const wordpress = wpCollections({
-  endpoint: "https://cms.mairiesouvertes.org/wp-json/",
+  endpoint: "https://www.lesvillageois.org/wp-json/",
 });
 
 const localBlog = defineCollection({
