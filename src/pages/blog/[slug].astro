@@ -1,0 +1,320 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection, getEntry } from 'astro:content';
+
+const wpPosts = await getCollection('posts');
+
+function stripHtml(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&hellip;/g, '...')
+    .replace(/&#8217;/g, "'")
+    .replace(/&#8220;/g, '"')
+    .replace(/&#8221;/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&laquo;/g, '«')
+    .replace(/&raquo;/g, '»')
+    .trim();
+}
+
+function formatDate(date: Date): string {
+  return new Intl.DateTimeFormat('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  }).format(date);
+}
+
+function getReadingTime(content: string): number {
+  const text = stripHtml(content);
+  const wordsPerMinute = 200;
+  const words = text.split(/\s+/).length;
+  return Math.ceil(words / wordsPerMinute);
+}
+
+async function getCategoryName(categoryRefs: any[]): Promise<string> {
+  if (!categoryRefs || categoryRefs.length === 0) return 'Non classé';
+  try {
+    const catEntry = await getEntry(categoryRefs[0]) as any;
+    return catEntry?.data?.name || 'Non classé';
+  } catch {
+    return 'Non classé';
+  }
+}
+
+async function getFeaturedImageUrl(featuredMedia: any): Promise<string | undefined> {
+  if (!featuredMedia) return undefined;
+  try {
+    const media = await getEntry(featuredMedia) as any;
+    if (media) {
+      const sizes = media.data?.media_details?.sizes;
+      return sizes?.large?.source_url 
+        || sizes?.medium_large?.source_url 
+        || sizes?.medium?.source_url 
+        || media.data?.source_url;
+    }
+  } catch (e) {
+    console.warn('Could not resolve featured media');
+  }
+  return undefined;
+}
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts.map(post => ({
+    params: { slug: post.data.slug },
+    props: { post },
+  }));
+}
+
+const { post: wpPost } = Astro.props;
+
+if (!wpPost) {
+  return Astro.redirect('/404');
+}
+
+const featuredImageUrl = await getFeaturedImageUrl(wpPost.data.featured_media);
+
+const postCategoryName = await getCategoryName(wpPost.data.categories as any);
+
+const post = {
+  title: stripHtml(wpPost.data.title?.rendered || ''),
+  content: wpPost.data.content?.rendered || '',
+  excerpt: stripHtml(wpPost.data.excerpt?.rendered || ''),
+  date: new Date(wpPost.data.date),
+  author: 'Équipe Villageois 2.0',
+  categories: [postCategoryName],
+  tags: [] as string[],
+  featuredImage: featuredImageUrl ? {
+    url: featuredImageUrl,
+    alt: stripHtml(wpPost.data.title?.rendered || '')
+  } : undefined,
+};
+
+const readingTime = getReadingTime(post.content);
+
+const relatedPostsData = await Promise.all(
+  wpPosts
+    .filter(p => p.data.slug !== wpPost.data.slug)
+    .slice(0, 3)
+    .map(async (p) => {
+      const imageUrl = await getFeaturedImageUrl(p.data.featured_media);
+      const relatedCatName = await getCategoryName(p.data.categories as any);
+      return {
+        slug: p.data.slug,
+        title: stripHtml(p.data.title?.rendered || ''),
+        date: new Date(p.data.date),
+        categories: [relatedCatName],
+        featuredImage: imageUrl ? {
+          url: imageUrl,
+          alt: stripHtml(p.data.title?.rendered || '')
+        } : undefined,
+      };
+    })
+);
+---
+
+<Layout title={post.title}>
+  <article class="py-12 md:py-16">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto">
+        <header class="mb-8">
+          <div class="flex flex-wrap gap-2 mb-4">
+            {post.categories.map((category) => (
+              <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-primary/10 text-primary">
+                {category}
+              </span>
+            ))}
+          </div>
+          
+          <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight">
+            {post.title}
+          </h1>
+          
+          <div class="flex flex-wrap items-center gap-4 text-muted-foreground mb-6">
+            <div class="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+              <span>{formatDate(post.date)}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span>{post.author}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>{readingTime} min de lecture</span>
+            </div>
+          </div>
+
+          {post.featuredImage && (
+            <div class="rounded-xl overflow-hidden shadow-lg mb-8">
+              <img 
+                src={post.featuredImage.url} 
+                alt={post.featuredImage.alt || post.title}
+                class="w-full aspect-video object-cover"
+                loading="eager"
+              />
+            </div>
+          )}
+        </header>
+
+        <div 
+          class="prose prose-lg max-w-none prose-headings:font-bold prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-img:rounded-lg prose-blockquote:border-l-primary"
+          set:html={post.content}
+        />
+
+        {post.tags.length > 0 && (
+          <div class="mt-12 pt-8 border-t border-border">
+            <h4 class="text-sm font-semibold text-muted-foreground mb-3">Tags :</h4>
+            <div class="flex flex-wrap gap-2">
+              {post.tags.map((tag) => (
+                <span class="inline-flex items-center rounded-full border px-3 py-1 text-sm bg-muted hover:bg-muted/80 transition-colors">
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <nav class="mt-12 pt-8 border-t border-border">
+          <a 
+            href="/blog" 
+            class="inline-flex items-center gap-2 text-primary hover:underline font-medium"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+            Retour aux actualités
+          </a>
+        </nav>
+      </div>
+    </div>
+  </article>
+
+  {relatedPostsData.length > 0 && (
+    <section class="py-16 bg-muted/30">
+      <div class="container mx-auto px-4">
+        <div class="max-w-6xl mx-auto">
+          <h2 class="text-2xl md:text-3xl font-bold mb-8">Articles similaires</h2>
+          
+          <div class="grid md:grid-cols-3 gap-6">
+            {relatedPostsData.map((related) => (
+              <a 
+                href={`/blog/${related.slug}`}
+                class="group bg-card rounded-lg overflow-hidden border hover:shadow-lg transition-all"
+              >
+                <div class="aspect-video overflow-hidden bg-muted">
+                  {related.featuredImage ? (
+                    <img 
+                      src={related.featuredImage.url} 
+                      alt={related.title}
+                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
+                      <span class="text-2xl text-primary/30">V2.0</span>
+                    </div>
+                  )}
+                </div>
+                <div class="p-4">
+                  <span class="text-xs text-primary font-medium">
+                    {related.categories[0] || 'Non classé'}
+                  </span>
+                  <h3 class="font-semibold mt-1 group-hover:text-primary transition-colors line-clamp-2">
+                    {related.title}
+                  </h3>
+                  <p class="text-sm text-muted-foreground mt-2">
+                    {formatDate(related.date)}
+                  </p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+</Layout>
+
+<style>
+  .prose {
+    overflow-x: hidden;
+  }
+
+  .prose :global(img) {
+    display: block;
+    margin-top: 2rem !important;
+    margin-bottom: 2rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 0.5rem;
+  }
+
+  .prose :global(figure) {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 2rem 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .prose :global(figure img) {
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .prose :global(figcaption) {
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--color-muted-foreground);
+    margin-top: 0.5rem;
+  }
+
+  .prose :global(.wp-block-image),
+  .prose :global(.wp-block-gallery),
+  .prose :global([class*="wp-block"]) {
+    max-width: 100% !important;
+    width: 100% !important;
+    overflow: hidden;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .prose :global(.wp-block-image img),
+  .prose :global(.wp-block-gallery img),
+  .prose :global([class*="wp-block"] img) {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .prose :global(img[width]),
+  .prose :global(img[height]) {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  .prose :global(h2) {
+    margin-top: 2.5rem;
+  }
+  
+  .prose :global(h3) {
+    margin-top: 2rem;
+  }
+  
+  .prose :global(ul), .prose :global(ol) {
+    padding-left: 1.5rem;
+  }
+  
+  .prose :global(li) {
+    margin-bottom: 0.5rem;
+  }
+
+  .prose :global(iframe),
+  .prose :global(video),
+  .prose :global(embed),
+  .prose :global(object) {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+</style>

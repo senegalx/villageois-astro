@@ -1,0 +1,106 @@
+---
+import Layout from '../layouts/Layout.astro';
+import FeaturedArticle from '../components/FeaturedArticle.astro';
+import BlogFilter from '../components/BlogFilter';
+import { getCollection, getEntry } from 'astro:content';
+import type { BlogPost } from '../components/BlogFilter';
+
+const wpPosts = await getCollection('posts');
+const wpCategories = await getCollection('categories');
+
+const categoryNames = wpCategories.map(cat => cat.data.name);
+
+function stripHtml(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&hellip;/g, '...')
+    .replace(/&#8217;/g, "'")
+    .replace(/&#8220;/g, '"')
+    .replace(/&#8221;/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&laquo;/g, '«')
+    .replace(/&raquo;/g, '»')
+    .trim();
+}
+
+function formatDate(date: Date): string {
+  return new Intl.DateTimeFormat('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  }).format(date);
+}
+
+const sortedPosts = wpPosts.sort((a, b) => 
+  new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+);
+
+async function getCategoryName(categoryRefs: any[]): Promise<string> {
+  if (!categoryRefs || categoryRefs.length === 0) return 'Non classé';
+  try {
+    const catEntry = await getEntry(categoryRefs[0]) as any;
+    return catEntry?.data?.name || 'Non classé';
+  } catch {
+    return 'Non classé';
+  }
+}
+
+const blogPosts: BlogPost[] = await Promise.all(
+  sortedPosts.map(async (post) => {
+    const categoryName = await getCategoryName(post.data.categories as any);
+
+    let imageUrl: string | undefined;
+    if (post.data.featured_media) {
+      try {
+        const media = await getEntry(post.data.featured_media) as any;
+        if (media) {
+          const sizes = media.data?.media_details?.sizes;
+          imageUrl = sizes?.large?.source_url 
+            || sizes?.medium_large?.source_url 
+            || sizes?.medium?.source_url 
+            || media.data?.source_url;
+        }
+      } catch (e) {
+        console.warn(`Could not resolve featured media for post ${post.data.id}`);
+      }
+    }
+    
+    return {
+      id: String(post.data.id),
+      slug: post.data.slug,
+      title: stripHtml(post.data.title?.rendered || ''),
+      excerpt: stripHtml(post.data.excerpt?.rendered || ''),
+      date: formatDate(new Date(post.data.date)),
+      author: 'Équipe Villageois 2.0',
+      category: categoryName,
+      categories: [categoryName],
+      image: imageUrl,
+    };
+  })
+);
+
+const featuredPost = blogPosts[0];
+const remainingPosts = blogPosts.slice(1);
+---
+
+<Layout title="Actualités">
+  {featuredPost && (
+    <FeaturedArticle
+      title={featuredPost.title}
+      date={featuredPost.date}
+      author={featuredPost.author}
+      category={featuredPost.category}
+      excerpt={featuredPost.excerpt}
+      image={featuredPost.image || "/assets/hero-blog.jpg"}
+      readTime="5 min"
+      slug={featuredPost.slug}
+    />
+  )}
+
+  <BlogFilter 
+    client:load 
+    posts={remainingPosts}
+    categories={categoryNames}
+  />
+</Layout>

@@ -1,0 +1,58 @@
+---
+const partners = [
+  {
+    name: "Ambassade des États-Unis en Guinée",
+    logo: "🇺🇸",
+    description: "Partenaire principal pour le TechCamp et projets de lutte contre la désinformation"
+  },
+  {
+    name: "UNFPA Guinée",
+    logo: "🌍",
+    description: "Collaboration sur l'engagement civique des jeunes"
+  },
+  {
+    name: "GuineeCheck",
+    logo: "✓",
+    description: "Partenaire fact-checking et vérification d'informations"
+  },
+  {
+    name: "OIF",
+    logo: "🇫🇷",
+    description: "Organisation Internationale de la Francophonie - Projet Sahel"
+  },
+  {
+    name: "On est ensemble",
+    logo: "🤝",
+    description: "ONG camerounaise - Partenaire sur l'organisation communautaire"
+  },
+  {
+    name: "Sankoré Labs",
+    logo: "🔬",
+    description: "Partenaire malien sur les projets numériques au Sahel"
+  }
+];
+---
+
+<section class="py-20 bg-muted/30">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-16">
+      <h2 class="mb-4">Nos partenaires</h2>
+      <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
+        Ils nous font confiance et soutiennent nos initiatives pour un impact durable
+      </p>
+    </div>
+
+    <div class="grid grid-cols-3 md:grid-cols-6 gap-8 max-w-7xl mx-auto items-center">
+      {partners.map((partner) => (
+        <div 
+          class="group flex items-center justify-center p-4 rounded-lg hover:bg-muted/50 transition-smooth"
+          title={partner.name}
+        >
+          <div class="text-6xl md:text-7xl group-hover:scale-110 transition-smooth opacity-70 group-hover:opacity-100">
+            {partner.logo}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

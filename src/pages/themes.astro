@@ -1,0 +1,126 @@
+---
+import Layout from '../layouts/Layout.astro';
+import HeroSection from '../components/HeroSection.astro';
+
+const themes = [
+  {
+    icon: "laptop",
+    title: "Alphabétisation numérique",
+    description: "Former les citoyens guinéens aux technologies de l'information et de la communication pour réduire la fracture numérique.",
+    color: "text-primary",
+    bgColor: "bg-primary/10",
+    details: [
+      "Formations en informatique de base",
+      "Ateliers sur les outils bureautiques",
+      "Initiation à Internet et aux réseaux sociaux",
+      "Maison Digitale de Labé comme centre de formation"
+    ]
+  },
+  {
+    icon: "users",
+    title: "Participation citoyenne",
+    description: "Encourager l'engagement civique et la gouvernance participative à travers des outils numériques accessibles à tous.",
+    color: "text-accent",
+    bgColor: "bg-accent/10",
+    details: [
+      "Plateformes de dialogue citoyen en ligne",
+      "Organisation d'événements participatifs",
+      "Formation aux mécanismes de gouvernance locale",
+      "Promotion des droits et devoirs citoyens"
+    ]
+  },
+  {
+    icon: "shield",
+    title: "Lutte contre la désinformation",
+    description: "Développer l'esprit critique et les compétences en fact-checking pour combattre les fausses informations.",
+    color: "text-secondary",
+    bgColor: "bg-secondary/10",
+    details: [
+      "Partenariat avec GuineeCheck",
+      "Formations en vérification des faits",
+      "Production d'articles de fact-checking",
+      "Sensibilisation aux dangers de la désinformation"
+    ]
+  },
+  {
+    icon: "book",
+    title: "Éducation citoyenne et populaire",
+    description: "Promouvoir l'éducation civique accessible en langues locales pour renforcer la démocratie et les droits citoyens.",
+    color: "text-institutional",
+    bgColor: "bg-institutional/10",
+    details: [
+      "Contenus en langues locales (pular, malinké)",
+      "Ateliers d'éducation civique",
+      "Sensibilisation aux processus démocratiques",
+      "Promotion des valeurs républicaines"
+    ]
+  }
+];
+
+const iconMap: Record<string, string> = {
+  laptop: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="12" x="3" y="4" rx="2" ry="2"/><line x1="2" x2="22" y1="20" y2="20"/></svg>',
+  users: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  shield: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>',
+  book: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>'
+};
+---
+
+<Layout title="Axes thématiques">
+  <HeroSection
+    title="Nos axes thématiques"
+    description="Quatre piliers complémentaires pour bâtir une Guinée connectée, informée et démocratique, du village à la ville."
+    backgroundImage="/assets/hero-themes.jpg"
+  />
+
+  <section class="py-20 bg-background">
+    <div class="container mx-auto px-4">
+      <div class="space-y-12 max-w-5xl mx-auto">
+        {themes.map((theme) => (
+          <div class="border-2 hover:shadow-medium transition-smooth rounded-lg bg-card">
+            <div class="flex flex-col space-y-1.5 p-6">
+              <div class="flex items-start gap-6">
+                <div class={`${theme.bgColor} w-16 h-16 rounded-xl flex items-center justify-center shrink-0`}>
+                  <div class={theme.color} set:html={iconMap[theme.icon]} />
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-2xl font-semibold leading-none tracking-tight mb-3">{theme.title}</h3>
+                  <p class="text-base leading-relaxed text-muted-foreground">
+                    {theme.description}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="p-6 pt-0">
+              <h4 class="font-semibold text-foreground mb-4">Nos actions concrètes :</h4>
+              <ul class="grid md:grid-cols-2 gap-3">
+                {theme.details.map((detail) => (
+                  <li class="flex items-start gap-2">
+                    <div class="w-2 h-2 rounded-full bg-primary mt-2 shrink-0"></div>
+                    <span class="text-muted-foreground">{detail}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="py-20 gradient-primary relative overflow-hidden">
+    <div class="container mx-auto px-4 relative z-10">
+      <div class="max-w-3xl mx-auto text-center text-white">
+        <h2 class="mb-6">Intéressé par l'un de nos axes ?</h2>
+        <p class="text-xl mb-8 text-white/90">
+          Découvrez comment vous pouvez contribuer ou bénéficier de nos programmes.
+        </p>
+        <a 
+          href="/contact"
+          class="inline-flex items-center gap-2 px-8 py-4 bg-white text-primary rounded-lg font-semibold hover:bg-white/90 transition-smooth shadow-medium"
+        >
+          Contactez-nous
+        </a>
+      </div>
+    </div>
+  </section>
+</Layout>

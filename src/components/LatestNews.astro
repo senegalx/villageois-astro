@@ -1,0 +1,136 @@
+---
+import { getCollection, getEntry } from 'astro:content';
+
+const wpPosts = await getCollection('posts');
+
+function stripHtml(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&hellip;/g, '...')
+    .replace(/&#8217;/g, "'")
+    .replace(/&#8220;/g, '"')
+    .replace(/&#8221;/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&laquo;/g, '«')
+    .replace(/&raquo;/g, '»')
+    .replace(/&rsquo;/g, "'")
+    .trim();
+}
+
+function formatDate(date: Date): string {
+  return new Intl.DateTimeFormat('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  }).format(date);
+}
+
+async function getCategoryName(categoryRefs: any[]): Promise<string> {
+  if (!categoryRefs || categoryRefs.length === 0) return 'Non classé';
+  try {
+    const catEntry = await getEntry(categoryRefs[0]) as any;
+    return catEntry?.data?.name || 'Non classé';
+  } catch {
+    return 'Non classé';
+  }
+}
+
+async function getFeaturedImageUrl(featuredMedia: any): Promise<string | undefined> {
+  if (!featuredMedia) return undefined;
+  try {
+    const media = await getEntry(featuredMedia) as any;
+    if (media) {
+      const sizes = media.data?.media_details?.sizes;
+      return sizes?.medium_large?.source_url 
+        || sizes?.medium?.source_url 
+        || sizes?.large?.source_url
+        || media.data?.source_url;
+    }
+  } catch (e) {
+    console.warn('Could not resolve featured media');
+  }
+  return undefined;
+}
+
+const sortedPosts = wpPosts.sort((a, b) => 
+  new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+);
+
+const latestPosts = await Promise.all(
+  sortedPosts.slice(0, 3).map(async (post) => {
+    const imageUrl = await getFeaturedImageUrl(post.data.featured_media);
+    const categoryName = await getCategoryName(post.data.categories as any);
+    return {
+      slug: post.data.slug,
+      title: stripHtml(post.data.title?.rendered || ''),
+      description: stripHtml(post.data.excerpt?.rendered || ''),
+      date: formatDate(new Date(post.data.date)),
+      category: categoryName,
+      image: imageUrl,
+    };
+  })
+);
+---
+
+<section class="py-20 gradient-hero">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-16">
+      <h2 class="mb-4">Notre actualité</h2>
+      <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
+        Suivez nos dernières activités et projets en cours
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+      {latestPosts.map((article) => (
+        <a 
+          href={`/blog/${article.slug}`}
+          class="group hover:shadow-medium transition-smooth border-2 hover:border-primary/20 overflow-hidden rounded-lg bg-card block"
+        >
+          <div class="aspect-video overflow-hidden bg-muted">
+            {article.image ? (
+              <img 
+                src={article.image} 
+                alt={article.title}
+                class="w-full h-full object-cover group-hover:scale-105 transition-smooth"
+                loading="lazy"
+              />
+            ) : (
+              <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
+                <span class="text-2xl text-primary/30">V2.0</span>
+              </div>
+            )}
+          </div>
+          <div class="flex flex-col space-y-1.5 p-6">
+            <div class="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+              <span>{article.date}</span>
+            </div>
+            <span class="inline-block px-3 py-1 bg-primary/10 text-primary text-xs font-semibold rounded-full mb-3 w-fit">
+              {article.category}
+            </span>
+            <h3 class="text-xl font-semibold leading-tight tracking-tight group-hover:text-primary transition-smooth">
+              {article.title}
+            </h3>
+          </div>
+          <div class="p-6 pt-0">
+            <p class="text-base leading-relaxed text-muted-foreground line-clamp-3">
+              {article.description}
+            </p>
+          </div>
+        </a>
+      ))}
+    </div>
+
+    <div class="text-center mt-12">
+      <a
+        href="/blog"
+        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium h-11 px-8 border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-smooth"
+      >
+        Voir tous les articles
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</section>

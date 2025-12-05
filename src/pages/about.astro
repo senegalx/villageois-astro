@@ -1,0 +1,84 @@
+---
+import Layout from '../layouts/Layout.astro';
+import HeroSection from '../components/HeroSection.astro';
+---
+
+<Layout title="Qui sommes-nous">
+  <HeroSection
+    title="Qui sommes-nous ?"
+    description="L'Association Villageois 2.0 est une organisation guinéenne dédiée à la transformation numérique et citoyenne de nos communautés."
+    backgroundImage="/assets/hero-about.jpg"
+  />
+
+  <section class="py-20 bg-background">
+    <div class="container mx-auto px-4">
+      <div class="grid md:grid-cols-3 gap-12 max-w-6xl mx-auto">
+        <div class="text-center">
+          <div class="bg-primary/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          </div>
+          <h3 class="mb-4">Notre mission</h3>
+          <p class="text-muted-foreground leading-relaxed">
+            Démocratiser l'accès aux technologies de l'information et de la communication 
+            pour renforcer la participation citoyenne et lutter contre la désinformation en Guinée.
+          </p>
+        </div>
+
+        <div class="text-center">
+          <div class="bg-accent/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-accent"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <h3 class="mb-4">Notre vision</h3>
+          <p class="text-muted-foreground leading-relaxed">
+            Une Guinée où chaque citoyen, des villages aux villes, est connecté, 
+            informé et activement engagé dans la construction d'une société démocratique.
+          </p>
+        </div>
+
+        <div class="text-center">
+          <div class="bg-secondary/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-secondary"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+          </div>
+          <h3 class="mb-4">Nos valeurs</h3>
+          <p class="text-muted-foreground leading-relaxed">
+            Inclusion, transparence, innovation et engagement communautaire guident 
+            toutes nos actions pour un impact durable et authentique.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-20 gradient-hero">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto">
+        <h2 class="text-center mb-12">Notre histoire</h2>
+        
+        <div class="space-y-8 text-muted-foreground leading-relaxed">
+          <p class="text-lg">
+            Fondée en Guinée, l'Association Villageois 2.0 est née de la conviction que 
+            la transformation numérique ne doit laisser personne de côté. Notre nom reflète 
+            notre engagement : connecter nos villages traditionnels à l'ère numérique 2.0.
+          </p>
+          
+          <p class="text-lg">
+            Depuis nos débuts, nous avons formé plus de 1000 citoyens guinéens aux compétences 
+            numériques essentielles, organisé des dizaines d'ateliers de fact-checking pour 
+            combattre la désinformation, et créé des espaces d'engagement civique accessibles à tous.
+          </p>
+          
+          <p class="text-lg">
+            Notre Maison Digitale de Labé est devenue un hub d'innovation et d'apprentissage, 
+            tandis que nos partenariats avec des organisations comme l'UNFPA et GuineeCheck 
+            amplifient notre impact à travers tout le pays.
+          </p>
+          
+          <p class="text-lg">
+            Aujourd'hui, nous continuons d'œuvrer pour une Guinée où chaque citoyen peut 
+            participer pleinement à la vie démocratique grâce aux outils numériques.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
