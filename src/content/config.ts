@@ -1,6 +1,6 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
-import { wpCollections } from 'dewp/loaders';
+import { wpCollections } from '../lib/dewp/loaders';
 
 const wordpress = wpCollections({
   endpoint: "https://www.lesvillageois.org/wp-json/",
