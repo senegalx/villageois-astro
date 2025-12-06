@@ -1,5 +1,6 @@
 ---
 import { getCollection, getEntry } from 'astro:content';
+import RemoteImage from './RemoteImage.astro';
 
 const wpPosts = await getCollection('posts');
 
@@ -36,16 +37,30 @@ async function getCategoryName(categoryRefs: any[]): Promise<string> {
   }
 }
 
-async function getFeaturedImageUrl(featuredMedia: any): Promise<string | undefined> {
+interface ImageData {
+  url: string;
+  width: number;
+  height: number;
+}
+
+async function getFeaturedImageUrl(featuredMedia: any): Promise<ImageData | undefined> {
   if (!featuredMedia) return undefined;
   try {
     const media = await getEntry(featuredMedia) as any;
     if (media) {
+      // Priorité: medium_large > medium > large > source
       const sizes = media.data?.media_details?.sizes;
-      return sizes?.medium_large?.source_url 
-        || sizes?.medium?.source_url 
-        || sizes?.large?.source_url
-        || media.data?.source_url;
+      const selectedSize = sizes?.medium_large || sizes?.medium || sizes?.large;
+      
+      const imageUrl = selectedSize?.source_url || media.data?.source_url;
+      const width = selectedSize?.width || media.data?.media_details?.width || 800;
+      const height = selectedSize?.height || media.data?.media_details?.height || 600;
+      
+      return {
+        url: imageUrl,
+        width,
+        height
+      };
     }
   } catch (e) {
     console.warn('Could not resolve featured media');
@@ -59,7 +74,7 @@ const sortedPosts = wpPosts.sort((a, b) =>
 
 const latestPosts = await Promise.all(
   sortedPosts.slice(0, 3).map(async (post) => {
-    const imageUrl = await getFeaturedImageUrl(post.data.featured_media);
+    const imageData = await getFeaturedImageUrl(post.data.featured_media);
     const categoryName = await getCategoryName(post.data.categories as any);
     return {
       slug: post.data.slug,
@@ -67,7 +82,7 @@ const latestPosts = await Promise.all(
       description: stripHtml(post.data.excerpt?.rendered || ''),
       date: formatDate(new Date(post.data.date)),
       category: categoryName,
-      image: imageUrl,
+      image: imageData,
     };
   })
 );
@@ -90,11 +105,14 @@ const latestPosts = await Promise.all(
         >
           <div class="aspect-video overflow-hidden bg-muted">
             {article.image ? (
-              <img 
-                src={article.image} 
+              <RemoteImage 
+                src={article.image.url}
                 alt={article.title}
-                class="w-full h-full object-cover group-hover:scale-105 transition-smooth"
+                width={article.image.width}
+                height={article.image.height}
+                className="w-full h-full object-cover group-hover:scale-105 transition-smooth aspect-video"
                 loading="lazy"
+                fetchpriority="low"
               />
             ) : (
               <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">

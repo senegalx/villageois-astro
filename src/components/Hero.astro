@@ -1,12 +1,16 @@
 ---
+import { Image } from 'astro:assets';
+import heroBackground from '../assets/hero-background.jpg';
 ---
 
 <section class="relative py-20 md:py-32 overflow-hidden">
   <div class="absolute inset-0 z-0">
-    <img 
-      src="/assets/hero-background.jpg" 
+    <Image 
+      src={heroBackground}
       alt="Jeunes en formation numérique" 
       class="w-full h-full object-cover"
+      loading="eager"
+      fetchpriority="high"
     />
     <div class="absolute inset-0 bg-gradient-to-r from-background/70 via-background/50 to-background/40"></div>
   </div>

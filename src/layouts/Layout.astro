@@ -1,5 +1,6 @@
 ---
-import Navigation from '../components/Navigation';
+import { ClientRouter } from "astro:transitions";
+import Navigation from '../components/Navigation.astro';
 import Footer from '../components/Footer.astro';
 
 interface Props {
@@ -18,14 +19,81 @@ const { title, description = "Association Villageois 2.0 - Connectons nos villag
     <meta name="description" content={description} />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <meta name="generator" content={Astro.generator} />
+    <ClientRouter />
     <title>{title} | Villageois 2.0</title>
   </head>
   <body class="min-h-screen flex flex-col">
-    <Navigation client:load />
+    <Navigation transition:persist />
     <main class="flex-1">
       <slot />
     </main>
     <Footer />
+    <script>
+      function initNavigation() {
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIcon = document.getElementById('menu-icon');
+        const closeIcon = document.getElementById('close-icon');
+        const mobileAboutToggle = document.getElementById('mobile-about-toggle');
+        const mobileAboutDropdown = document.getElementById('mobile-about-dropdown');
+        const mobileChevron = document.getElementById('mobile-chevron');
+
+        // Skip if already initialized (prevents duplicate listeners with transition:persist)
+        if (mobileMenuToggle?.dataset.initialized) {
+          // Just reset state on page change
+          mobileMenu?.classList.add('hidden');
+          menuIcon?.classList.remove('hidden');
+          closeIcon?.classList.add('hidden');
+          mobileAboutDropdown?.classList.add('hidden');
+          mobileChevron?.classList.remove('rotate-180');
+          return;
+        }
+
+        // Mark as initialized
+        if (mobileMenuToggle) mobileMenuToggle.dataset.initialized = 'true';
+
+        // Toggle mobile menu
+        mobileMenuToggle?.addEventListener('click', () => {
+          const isOpen = !mobileMenu?.classList.contains('hidden');
+
+          if (isOpen) {
+            mobileMenu?.classList.add('hidden');
+            menuIcon?.classList.remove('hidden');
+            closeIcon?.classList.add('hidden');
+          } else {
+            mobileMenu?.classList.remove('hidden');
+            menuIcon?.classList.add('hidden');
+            closeIcon?.classList.remove('hidden');
+          }
+        });
+
+        // Toggle mobile about dropdown
+        mobileAboutToggle?.addEventListener('click', () => {
+          const isOpen = !mobileAboutDropdown?.classList.contains('hidden');
+
+          if (isOpen) {
+            mobileAboutDropdown?.classList.add('hidden');
+            mobileChevron?.classList.remove('rotate-180');
+          } else {
+            mobileAboutDropdown?.classList.remove('hidden');
+            mobileChevron?.classList.add('rotate-180');
+          }
+        });
+
+        // Close mobile menu when clicking on a link
+        const mobileLinks = mobileMenu?.querySelectorAll('a');
+        mobileLinks?.forEach(link => {
+          link.addEventListener('click', () => {
+            mobileMenu?.classList.add('hidden');
+            menuIcon?.classList.remove('hidden');
+            closeIcon?.classList.add('hidden');
+          });
+        });
+      }
+
+      // Run on initial page load and after each View Transition
+      document.addEventListener('astro:page-load', initNavigation);
+    </script>
   </body>
 </html>
 

@@ -2,13 +2,15 @@
 import Layout from '../layouts/Layout.astro';
 import HeroSection from '../components/HeroSection.astro';
 import ContactForm from '../components/ContactForm';
+import heroContact from '../assets/hero-contact.jpg';
 ---
 
 <Layout title="Contact">
   <HeroSection
     title="Contactez-nous"
     description="Une question ? Un projet de collaboration ? N'hésitez pas à nous écrire, nous serons ravis d'échanger avec vous."
-    backgroundImage="/assets/hero-contact.jpg"
+    backgroundImage={heroContact}
+    transition:name="hero"
   />
 
   <section class="py-20 bg-background">
@@ -40,7 +42,7 @@ import ContactForm from '../components/ContactForm';
               <h3 class="text-lg font-semibold leading-none tracking-tight">Téléphone</h3>
             </div>
             <div class="p-6 pt-0">
-              <p class="text-muted-foreground">+224 XXX XXX XXX</p>
+              <p class="text-muted-foreground">+224 627 80 32 80</p>
             </div>
           </div>
 
@@ -53,7 +55,7 @@ import ContactForm from '../components/ContactForm';
             </div>
             <div class="p-6 pt-0">
               <p class="text-muted-foreground">
-                Conakry, République de Guinée
+                Quartier Pounthioun, Labé
               </p>
             </div>
           </div>

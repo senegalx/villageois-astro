@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import HeroSection from '../components/HeroSection.astro';
+import heroThemes from '../assets/hero-themes.jpg';
 
 const themes = [
   {
@@ -69,7 +70,8 @@ const iconMap: Record<string, string> = {
   <HeroSection
     title="Nos axes thématiques"
     description="Quatre piliers complémentaires pour bâtir une Guinée connectée, informée et démocratique, du village à la ville."
-    backgroundImage="/assets/hero-themes.jpg"
+    backgroundImage={heroThemes}
+    transition:name="hero"
   />
 
   <section class="py-20 bg-background">

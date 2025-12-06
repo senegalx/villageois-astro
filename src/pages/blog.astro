@@ -5,6 +5,12 @@ import BlogFilter from '../components/BlogFilter';
 import { getCollection, getEntry } from 'astro:content';
 import type { BlogPost } from '../components/BlogFilter';
 
+interface ImageData {
+  url: string;
+  width: number;
+  height: number;
+}
+
 const wpPosts = await getCollection('posts');
 const wpCategories = await getCollection('categories');
 
@@ -46,25 +52,30 @@ async function getCategoryName(categoryRefs: any[]): Promise<string> {
   }
 }
 
+async function getFeaturedImageData(featuredMedia: any): Promise<ImageData | undefined> {
+  if (!featuredMedia) return undefined;
+  try {
+    const media = await getEntry(featuredMedia) as any;
+    if (media) {
+      const sizes = media.data?.media_details?.sizes;
+      const selectedSize = sizes?.large || sizes?.medium_large || sizes?.medium;
+      
+      const imageUrl = selectedSize?.source_url || media.data?.source_url;
+      const width = selectedSize?.width || media.data?.media_details?.width || 800;
+      const height = selectedSize?.height || media.data?.media_details?.height || 600;
+      
+      return { url: imageUrl, width, height };
+    }
+  } catch (e) {
+    console.warn(`Could not resolve featured media`);
+  }
+  return undefined;
+}
+
 const blogPosts: BlogPost[] = await Promise.all(
   sortedPosts.map(async (post) => {
     const categoryName = await getCategoryName(post.data.categories as any);
-
-    let imageUrl: string | undefined;
-    if (post.data.featured_media) {
-      try {
-        const media = await getEntry(post.data.featured_media) as any;
-        if (media) {
-          const sizes = media.data?.media_details?.sizes;
-          imageUrl = sizes?.large?.source_url 
-            || sizes?.medium_large?.source_url 
-            || sizes?.medium?.source_url 
-            || media.data?.source_url;
-        }
-      } catch (e) {
-        console.warn(`Could not resolve featured media for post ${post.data.id}`);
-      }
-    }
+    const imageData = await getFeaturedImageData(post.data.featured_media);
     
     return {
       id: String(post.data.id),
@@ -75,7 +86,9 @@ const blogPosts: BlogPost[] = await Promise.all(
       author: 'Équipe Villageois 2.0',
       category: categoryName,
       categories: [categoryName],
-      image: imageUrl,
+      image: imageData?.url,
+      imageWidth: imageData?.width || 800,
+      imageHeight: imageData?.height || 600,
     };
   })
 );
@@ -93,8 +106,11 @@ const remainingPosts = blogPosts.slice(1);
       category={featuredPost.category}
       excerpt={featuredPost.excerpt}
       image={featuredPost.image || "/assets/hero-blog.jpg"}
+      imageWidth={featuredPost.imageWidth}
+      imageHeight={featuredPost.imageHeight}
       readTime="5 min"
       slug={featuredPost.slug}
+      transition:name="hero"
     />
   )}
 

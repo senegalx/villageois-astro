@@ -20,8 +20,11 @@ interface BlogFilterProps {
   categories: string[];
 }
 
+const POSTS_PER_PAGE = 6;
+
 export const BlogFilter = ({ posts, categories: allCategories }: BlogFilterProps) => {
   const [selectedCategory, setSelectedCategory] = useState("Tous");
+  const [displayCount, setDisplayCount] = useState(POSTS_PER_PAGE);
   
   const categories = useMemo(() => ["Tous", ...allCategories], [allCategories]);
   
@@ -32,6 +35,16 @@ export const BlogFilter = ({ posts, categories: allCategories }: BlogFilterProps
       post.category === selectedCategory
     );
   }, [posts, selectedCategory]);
+
+  const displayedPosts = useMemo(() => {
+    return filteredPosts.slice(0, displayCount);
+  }, [filteredPosts, displayCount]);
+
+  const handleLoadMore = () => {
+    setDisplayCount(prev => prev + POSTS_PER_PAGE);
+  };
+
+  const hasMorePosts = displayCount < filteredPosts.length;
 
   return (
     <>
@@ -63,7 +76,7 @@ export const BlogFilter = ({ posts, categories: allCategories }: BlogFilterProps
             </div>
           ) : (
             <div className="max-w-4xl mx-auto space-y-8">
-              {filteredPosts.map((post) => (
+              {displayedPosts.map((post) => (
                 <a 
                   key={post.id}
                   href={`/blog/${post.slug}`}
@@ -76,6 +89,8 @@ export const BlogFilter = ({ posts, categories: allCategories }: BlogFilterProps
                           src={post.image} 
                           alt={post.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-smooth"
+                          loading="lazy"
+                          decoding="async"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
@@ -125,9 +140,10 @@ export const BlogFilter = ({ posts, categories: allCategories }: BlogFilterProps
             </div>
           )}
 
-          {filteredPosts.length > 10 && (
+          {hasMorePosts && (
             <div className="text-center mt-12">
               <Button 
+                onClick={handleLoadMore}
                 size="lg"
                 variant="outline"
                 className="border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-smooth"

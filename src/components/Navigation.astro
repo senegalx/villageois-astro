@@ -1,0 +1,170 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/logo-villageois.png';
+---
+
+<nav class="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border shadow-soft">
+  <div class="container mx-auto px-4">
+    <div class="flex items-center justify-between h-20">
+      <a href="/" class="flex items-center gap-3 group">
+        <Image 
+          src={logo}
+          alt="Villageois 2.0" 
+          class="h-14 w-14 object-contain transition-smooth group-hover:scale-105"
+          width={56}
+          height={56}
+        />
+        <div class="flex flex-col">
+          <span class="text-xl font-bold text-foreground">Villageois 2.0</span>
+          <span class="text-xs text-muted-foreground">Connectons nos villages</span>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <div class="hidden md:flex items-center gap-8">
+        <a
+          href="/"
+          class="text-foreground hover:text-primary transition-smooth font-medium relative group"
+        >
+          Accueil
+          <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
+        </a>
+        
+        <!-- Dropdown À propos -->
+        <div class="relative group">
+          <button class="flex items-center gap-1 text-foreground hover:text-primary transition-smooth font-medium outline-none">
+            À propos
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:rotate-180 transition-transform duration-300" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          
+          <div class="absolute top-full left-0 mt-2 w-56 bg-background border-2 border-border rounded-lg shadow-medium opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+            <div class="py-2">
+              <a 
+                href="/about" 
+                class="block px-4 py-3 text-foreground hover:bg-muted hover:text-primary transition-smooth"
+              >
+                <span class="block font-medium">Qui sommes-nous</span>
+                <span class="block text-xs text-muted-foreground mt-1">Notre histoire et mission</span>
+              </a>
+              <a 
+                href="/themes" 
+                class="block px-4 py-3 text-foreground hover:bg-muted hover:text-primary transition-smooth"
+              >
+                <span class="block font-medium">Axes thématiques</span>
+                <span class="block text-xs text-muted-foreground mt-1">Nos 4 piliers d'action</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <a
+          href="/projects"
+          class="text-foreground hover:text-primary transition-smooth font-medium relative group"
+        >
+          Nos projets
+          <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
+        </a>
+
+        <a
+          href="/blog"
+          class="text-foreground hover:text-primary transition-smooth font-medium relative group"
+        >
+          Actualité
+          <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
+        </a>
+
+        <a
+          href="/contact"
+          class="text-foreground hover:text-primary transition-smooth font-medium relative group"
+        >
+          Contact
+          <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
+        </a>
+
+        <a 
+          href="/toolbox"
+          class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium h-10 px-4 gradient-primary text-primary-foreground shadow-soft hover:shadow-medium transition-smooth"
+        >
+          Boîte à outils
+        </a>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <button
+        id="mobile-menu-toggle"
+        class="md:hidden p-2 text-foreground hover:text-primary transition-smooth"
+        aria-label="Toggle menu"
+      >
+        <svg id="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+        <svg id="close-icon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden py-4 border-t border-border bg-background">
+      <div class="flex flex-col gap-4">
+        <a
+          href="/"
+          class="text-foreground hover:text-primary transition-smooth font-medium py-2"
+        >
+          Accueil
+        </a>
+        
+        <!-- Mobile Dropdown -->
+        <div>
+          <button
+            id="mobile-about-toggle"
+            class="flex items-center justify-between w-full text-foreground hover:text-primary transition-smooth font-medium py-2"
+          >
+            À propos
+            <svg id="mobile-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div id="mobile-about-dropdown" class="hidden pl-4 mt-2 space-y-2 bg-muted/30 rounded-lg p-3">
+            <a
+              href="/about"
+              class="block py-2"
+            >
+              <span class="block font-medium text-foreground">Qui sommes-nous</span>
+              <span class="block text-xs text-muted-foreground">Notre histoire et mission</span>
+            </a>
+            <a
+              href="/themes"
+              class="block py-2"
+            >
+              <span class="block font-medium text-foreground">Axes thématiques</span>
+              <span class="block text-xs text-muted-foreground">Nos 4 piliers d'action</span>
+            </a>
+          </div>
+        </div>
+
+        <a
+          href="/projects"
+          class="text-foreground hover:text-primary transition-smooth font-medium py-2"
+        >
+          Nos projets
+        </a>
+
+        <a
+          href="/blog"
+          class="text-foreground hover:text-primary transition-smooth font-medium py-2"
+        >
+          Actualité
+        </a>
+
+        <a
+          href="/contact"
+          class="text-foreground hover:text-primary transition-smooth font-medium py-2"
+        >
+          Contact
+        </a>
+
+        <a 
+          href="/toolbox"
+          class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium h-10 px-4 gradient-primary text-primary-foreground w-full"
+        >
+          Boîte à outils
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>

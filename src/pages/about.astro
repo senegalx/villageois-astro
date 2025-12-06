@@ -1,13 +1,15 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import HeroSection from '../components/HeroSection.astro';
+import heroAbout from '../assets/hero-about.jpg';
 ---
 
 <Layout title="Qui sommes-nous">
   <HeroSection
     title="Qui sommes-nous ?"
     description="L'Association Villageois 2.0 est une organisation guinéenne dédiée à la transformation numérique et citoyenne de nos communautés."
-    backgroundImage="/assets/hero-about.jpg"
+    backgroundImage={heroAbout}
+    transition:name="hero"
   />
 
   <section class="py-20 bg-background">

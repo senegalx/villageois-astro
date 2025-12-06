@@ -1,4 +1,6 @@
 ---
+import RemoteImage from './RemoteImage.astro';
+
 interface Props {
   title: string;
   date: string;
@@ -6,12 +8,16 @@ interface Props {
   category: string;
   excerpt: string;
   image: string;
+  imageWidth?: number;
+  imageHeight?: number;
   readTime?: string;
   slug?: string;
 }
 
-const { title, date, author, category, excerpt, image, readTime = "5 min", slug } = Astro.props;
+const { title, date, author, category, excerpt, image, imageWidth = 800, imageHeight = 600, readTime = "5 min", slug } = Astro.props;
 const articleUrl = slug ? `/blog/${slug}` : '/blog';
+
+const isRemoteImage = image.startsWith('http') || image.startsWith('//');
 ---
 
 <section class="py-12 md:py-16 bg-gradient-to-br from-muted/30 via-background to-muted/20">
@@ -24,11 +30,23 @@ const articleUrl = slug ? `/blog/${slug}` : '/blog';
 
     <div class="grid md:grid-cols-2 gap-8 items-center max-w-7xl mx-auto">
       <div class="relative group overflow-hidden rounded-xl shadow-medium">
-        <img 
-          src={image} 
-          alt={title}
-          class="w-full aspect-video object-cover group-hover:scale-105 transition-smooth"
-        />
+        {isRemoteImage ? (
+          <RemoteImage 
+            src={image}
+            alt={title}
+            width={imageWidth}
+            height={imageHeight}
+            className="w-full aspect-video object-cover group-hover:scale-105 transition-smooth"
+            loading="eager"
+            fetchpriority="high"
+          />
+        ) : (
+          <img 
+            src={image} 
+            alt={title}
+            class="w-full aspect-video object-cover group-hover:scale-105 transition-smooth"
+          />
+        )}
         <div class="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent"></div>
         <span class="absolute top-4 left-4 inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-primary text-primary-foreground">
           {category}
