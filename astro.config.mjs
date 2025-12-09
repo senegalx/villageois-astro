@@ -14,7 +14,7 @@ export default defineConfig({
   },
 
   image: {
-    domains: ['yem.yenamarre.sn', 'lesvillageois.org', 'www.lesvillageois.org'],
+    domains: ['lesvillageois.org', 'www.lesvillageois.org']
   },
 
   integrations: [react()],
